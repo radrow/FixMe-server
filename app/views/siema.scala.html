@@ -1,0 +1,6 @@
+@()(implicit request: RequestHeader)
+
+<form action="sendinfo" method="POST">
+    @helper.CSRF.formField
+    <input type="submit" value="POST">
+</form>
