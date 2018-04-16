@@ -16,3 +16,5 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 GET     /siema                      controllers.GitaraSiemaController.siema
 
 POST    /sendinfo                   controllers.GitaraSiemaController.gitara
+
+GET     /api/hello                  controllers.ApiController.hello
