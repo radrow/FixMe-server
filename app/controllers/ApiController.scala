@@ -13,7 +13,7 @@ class ApiController @Inject()(cc: ControllerComponents) extends AbstractControll
 
 	def hello = Action { implicit request =>
 		Ok ( if (System.currentTimeMillis() / 1000 % 2 == 0)
-			"spierdalać" else "jestok"
+			"uciekać" else "jestok"
 		)
 	}
 
