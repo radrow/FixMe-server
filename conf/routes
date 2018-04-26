@@ -20,3 +20,5 @@ POST    /sendinfo                   controllers.GitaraSiemaController.gitara
 GET     /api/hello                  controllers.ApiController.hello
 
 POST    /api/addreport              controllers.ApiController.addreport
+
+POST    /web/addtag                 controllers.GitaraSiemaController.addtag

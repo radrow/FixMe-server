@@ -23,6 +23,7 @@ class ApiController @Inject()(cc: ControllerComponents) extends AbstractControll
 	def addreport = Action(parse.form(ReportForm.reportForm)) { implicit request =>
 		val report = request.body
 		println(report)
+
 		Ok("elo\n")
 	}
 
