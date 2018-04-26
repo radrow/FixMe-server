@@ -1,4 +1,4 @@
-name := "FixMeServer"
+name := "FixMe-server"
 
 version := "1.0"
 
