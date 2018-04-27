@@ -97,13 +97,26 @@ object Tables {
 					case Some(status) => for {
 
 						// yield who likes my report
-						likes <- sql"SELECT client_id FROM likes WHERE report_id = ${r._1}".as[Int]
+						upvoters <- sql"""SELECT client.*
+							              FROM client JOIN upvote ON client.id = upvote.client_id
+							              WHERE report_id = ${r._1}""".as[Client]
 
 						// yield used tags
-						tags <- sql"SELECT tag_id FROM likes WHERE report_id = ${r._1}".as[Int]
+						tags <- sql"""SELECT DISTINCT tag.*
+							          FROM tag JOIN report_tag ON tag.id = report_tag.tag_id
+							          WHERE report_id = ${r._1}""".as[Tag]
+
+						author <- sql"SELECT * FROM client WHERE id = ${r._4}".as[Client]
 
 						// return result in DBIO context
-					} yield Report(r._1, r._2, r._3, r._4, r._5, status, likes, tags)
+					} yield Report(r._1,
+					               r._2,
+					               r._3,
+					               author.headOption.getOrElse(Client.unknownId(r._4)),
+					               r._5,
+					               status,
+					               upvoters,
+					               tags)
 				}
 			}))
 

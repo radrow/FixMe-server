@@ -76,7 +76,7 @@ create table report_tag
 )
 ;
 
-create table "like"
+create table upvote
 (
   client_id integer not null
     constraint like_client_id_fk

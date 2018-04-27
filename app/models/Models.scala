@@ -7,6 +7,9 @@ case class Client(id: Int,
                   name: String,
                   password: String
                  )
+object Client {
+	def unknownId(id: Int) = Client(id, "unknown@unknown.unknown", "unknown", "")
+}
 
 case class Tag(id: Int, name: String)
 
@@ -29,9 +32,9 @@ object Status {
 case class Report(id: Int,
                   title: String,
                   description: String,
-                  client: Int, // :Client?
+                  author: Client,
                   location: String,
                   status: Status,
-                  likes: Seq[Int],
-                  tags: Seq[Int],
+                  upvotes: Seq[Client],
+                  tags: Seq[Tag],
                  )
