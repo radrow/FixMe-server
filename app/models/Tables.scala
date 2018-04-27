@@ -91,7 +91,7 @@ object Tables {
 				Status.fromString(r._6) match { // check if I can parse Status
 
 					// if failed yield error
-					case None => DBIOAction.failed(new IllegalArgumentException("Wrong status name: " ++ r._6))
+					case None => DBIOAction.failed(new IllegalArgumentException("Unsupported status name: " ++ r._6))
 
 					// if succeed return DBIO action...
 					case Some(status) => for {
