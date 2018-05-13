@@ -4,6 +4,8 @@ import slick.dbio.DBIOAction
 import slick.jdbc.GetResult
 import slick.jdbc.H2Profile.api._
 
+import scala.concurrent.ExecutionContext
+
 object Tables {
 
 	class Clients(tag: slick.lifted.Tag) extends Table[Client](tag, "client") {
@@ -25,6 +27,7 @@ object Tables {
 
 		def list: DBIO[Seq[Client]] = sql"SELECT * FROM client".as[Client]
 	}
+	val clients = TableQuery[Clients]
 
 	class Tags(tag: slick.lifted.Tag) extends Table[Tag](tag, "tag") {
 		def id = column[Int]("id", O.PrimaryKey, O.AutoInc, O.Unique)
@@ -43,6 +46,7 @@ object Tables {
 
 		//    def add(tagg: Tag): DBIO[Tag] = sql"INSERT INTO tag VALUES (tagg.id, tagg.name)"
 	}
+	val tags = TableQuery[Tags]
 
 	class Statuses(tag: slick.lifted.Tag) extends Table[String](tag, "status") {
 		def name = column[String]("name", O.PrimaryKey, O.Unique)
@@ -57,6 +61,30 @@ object Tables {
 
 		def list: DBIO[Seq[String]] = sql"SELECT * FROM status".as[String]
 	}
+
+	class UpVotes(tag: slick.lifted.Tag) extends Table[(Int, Int)](tag, "upvote") {
+		def client = column[Int]("client_id")
+		def report = column[Int]("report_id")
+		def * = (client, report)
+		def pk = primaryKey("upvote_pk", (client, report))
+	}
+	object UpVotes {
+		implicit val getUpVotesResult: AnyRef with GetResult[(Int, Int)] =
+			GetResult(r => (r.nextInt(), r.nextInt()))
+	}
+	val upvotes = TableQuery[UpVotes]
+
+	class ReportTags(tag: slick.lifted.Tag) extends Table[(Int, Int)](tag, "report_tag") {
+		def tag_id = column[Int]("tag_id")
+		def report = column[Int]("report_id")
+		def * = (tag_id, report)
+		def pk = primaryKey("report_tag_pk", (tag_id, report))
+	}
+	object ReportTags {
+		implicit val getReportTagsResult: AnyRef with GetResult[(Int, Int)] =
+			GetResult(r => (r.nextInt(), r.nextInt()))
+	}
+	val reportTags = TableQuery[ReportTags]
 
 	type ReportRow = (Int, String, String, Int, String, String)
 	class Reports(tag: slick.lifted.Tag) extends Table[ReportRow](tag, "report") {
@@ -82,7 +110,7 @@ object Tables {
 			GetResult(r => (r.nextInt(), r.nextString(), r.nextString(), r.nextInt(), r.nextString(), r.nextString()))
 
 
-		def list: DBIO[Seq[Report]] = for {
+		def list(implicit ec: ExecutionContext): DBIO[Seq[Report]] = for {
 			// get raw rows
 			reportRows: Seq[ReportRow] <- sql"SELECT * FROM report".as[ReportRow]
 
@@ -97,22 +125,24 @@ object Tables {
 					case Some(status) => for {
 
 						// yield who likes my report
-						upvoters <- sql"""SELECT client.*
-							              FROM client JOIN upvote ON client.id = upvote.client_id
-							              WHERE report_id = ${r._1}""".as[Client]
+						upvoters <- (for {
+							uv <- upvotes
+							c <- clients if uv.report === r._1 && uv.client === c.id
+						} yield c).result
 
 						// yield used tags
-						tags <- sql"""SELECT DISTINCT tag.*
-							          FROM tag JOIN report_tag ON tag.id = report_tag.tag_id
-							          WHERE report_id = ${r._1}""".as[Tag]
+						tags <- (for {
+							rt <- reportTags
+							t <- tags if rt.report === r._1 && rt.tag_id === t.id
+						} yield t).result
 
-						author <- sql"SELECT * FROM client WHERE id = ${r._4}".as[Client]
+						author <- clients.filter(_.id === r._4).result
 
 						// return result in DBIO context
 					} yield Report(r._1,
 					               r._2,
 					               r._3,
-					               author.headOption.getOrElse(Client.unknownId(r._4)),
+					               author.head,
 					               r._5,
 					               status,
 					               upvoters,
