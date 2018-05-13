@@ -27,4 +27,8 @@ class ApiController @Inject()(cc: ControllerComponents) extends AbstractControll
 		Ok("elo\n")
 	}
 
+	def getreports = Action { implicit request =>
+		request.queryString
+	}
+
 }
