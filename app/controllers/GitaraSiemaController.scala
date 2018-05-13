@@ -33,13 +33,11 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
 
   def addtag = Action(parse.form(TagForm.tagForm)) { implicit request =>
     val tag_to_add = request.body
-    val tagDAO = TableQuery[Tags]
     try {
       Await.result(db.run(DBIO.seq(
-        tagDAO += Tag(0, tag_to_add.name)
+        Tables.tags += Tag(0, tag_to_add.name)
       )), Duration.Inf)
-    }
-    finally {
+    } finally {
       db.close()
     }
 
