@@ -15,7 +15,7 @@ import scala.concurrent.duration._
 @Singleton
 class GitaraSiemaController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
 
-  def db = Database.forURL("jdbc:postgresql://localhost:5432/FixMe-database", "adam", "a")
+  def db = Database.forURL("jdbc:postgresql://localhost:5432/FixMe-database", "fixme", "a")
 
   def siema = Action { implicit request =>
     Ok(views.html.siema())

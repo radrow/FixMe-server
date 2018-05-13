@@ -7,9 +7,6 @@ case class Client(id: Int,
                   name: String,
                   password: String
                  )
-object Client {
-	def unknownId(id: Int) = Client(id, "unknown@unknown.unknown", "unknown", "")
-}
 
 case class Tag(id: Int, name: String)
 
@@ -24,9 +21,6 @@ object Status {
         case "fixed" => Some(Fixed())
         case _ => None
     }
-
-    def fromStringUnsafe(s: String): String =
-        fromString(s).getOrElse[String]("unknown")
 }
 
 case class Report(id: Int,
