@@ -1,8 +1,8 @@
 package models
 
-import slick.dbio.DBIOAction
 import slick.jdbc.GetResult
 import slick.jdbc.H2Profile.api._
+import slick.lifted.PrimaryKey
 
 object Tables {
 
@@ -25,6 +25,7 @@ object Tables {
 
 		def list: DBIO[Seq[Client]] = sql"SELECT * FROM client".as[Client]
 	}
+	val clients = TableQuery[Clients]
 
 	class Tags(tag: slick.lifted.Tag) extends Table[Tag](tag, "tag") {
 		def id = column[Int]("id", O.PrimaryKey, O.AutoInc, O.Unique)
@@ -32,7 +33,6 @@ object Tables {
 		def name = column[String]("name", O.Unique)
 
 		override def * = (id, name) <> (Tag.tupled, Tag.unapply)
-
 	}
 
 	object Tags {
@@ -43,12 +43,12 @@ object Tables {
 
 		//    def add(tagg: Tag): DBIO[Tag] = sql"INSERT INTO tag VALUES (tagg.id, tagg.name)"
 	}
+	val tags = TableQuery[Tags]
 
 	class Statuses(tag: slick.lifted.Tag) extends Table[String](tag, "status") {
 		def name = column[String]("name", O.PrimaryKey, O.Unique)
 
 		override def * = name
-
 	}
 
 	object Statuses {
@@ -57,6 +57,18 @@ object Tables {
 
 		def list: DBIO[Seq[String]] = sql"SELECT * FROM status".as[String]
 	}
+	val statuses = TableQuery[Statuses]
+
+	class Upvotes[tag: slick.lifted.Tag] extends Table[(Int, Int)](tag, "upvote") {
+		def client = column[Int]("client_id")
+		def report = column[Int]("report_id")
+
+		def * = (client, report)
+
+		def pk = primaryKey("pk", (client, report))
+	}
+	val upvotes = TableQuery[Upvotes]
+
 
 	type ReportRow = (Int, String, String, Int, String, String)
 	class Reports(tag: slick.lifted.Tag) extends Table[ReportRow](tag, "report") {
@@ -75,51 +87,21 @@ object Tables {
 		override def * =
 			(id, title, description, clientid, location, statusname)
 
+		def client = foreignKey("clientFK", clientid, clients)(
+			_.id,
+			onUpdate = ForeignKeyAction.Restrict,
+			onDelete = ForeignKeyAction.Cascade)
 	}
 
 	object Reports {
 		implicit val getReportResult: AnyRef with GetResult[ReportRow] =
 			GetResult(r => (r.nextInt(), r.nextString(), r.nextString(), r.nextInt(), r.nextString(), r.nextString()))
 
+		val s = clients.result.
 
 		def list: DBIO[Seq[Report]] = for {
-			// get raw rows
-			reportRows: Seq[ReportRow] <- sql"SELECT * FROM report".as[ReportRow]
 
-			// combine DB IO actions into single results
-			reports <- DBIO.sequence(reportRows.map(r => {
-				Status.fromString(r._6) match { // check if I can parse Status
-
-					// if failed yield error
-					case None => DBIOAction.failed(new IllegalArgumentException("Unsupported status name: " ++ r._6))
-
-					// if succeed return DBIO action...
-					case Some(status) => for {
-
-						// yield who likes my report
-						upvoters <- sql"""SELECT client.*
-							              FROM client JOIN upvote ON client.id = upvote.client_id
-							              WHERE report_id = ${r._1}""".as[Client]
-
-						// yield used tags
-						tags <- sql"""SELECT DISTINCT tag.*
-							          FROM tag JOIN report_tag ON tag.id = report_tag.tag_id
-							          WHERE report_id = ${r._1}""".as[Tag]
-
-						author <- sql"SELECT * FROM client WHERE id = ${r._4}".as[Client]
-
-						// return result in DBIO context
-					} yield Report(r._1,
-					               r._2,
-					               r._3,
-					               author.headOption.getOrElse(Client.unknownId(r._4)),
-					               r._5,
-					               status,
-					               upvoters,
-					               tags)
-				}
-			}))
-
-		} yield reports
+		}
 	}
+	val reports = TableQuery[ReportRow]
 }

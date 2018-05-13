@@ -1,15 +1,10 @@
 package models
 
-import models.Tables.ReportRow
-
 case class Client(id: Int,
                   email: String,
                   name: String,
                   password: String
                  )
-object Client {
-	def unknownId(id: Int) = Client(id, "unknown@unknown.unknown", "unknown", "")
-}
 
 case class Tag(id: Int, name: String)
 
@@ -18,15 +13,15 @@ case class Pending() extends Status
 case class Accepted() extends Status
 case class Fixed() extends Status
 object Status {
-    def fromString(s: String): Option[Status] = s match {
-        case "pending" => Some(Pending())
-        case "accepted" => Some(Accepted())
-        case "fixed" => Some(Fixed())
-        case _ => None
-    }
+	def fromString(s: String): Option[Status] = s match {
+		case "pending" => Some(Pending())
+		case "accepted" => Some(Accepted())
+		case "fixed" => Some(Fixed())
+		case _ => None
+	}
 
-    def fromStringUnsafe(s: String): String =
-        fromString(s).getOrElse[String]("unknown")
+	def fromStringUnsafe(s: String): String =
+		fromString(s).getOrElse[String]("unknown")
 }
 
 case class Report(id: Int,
