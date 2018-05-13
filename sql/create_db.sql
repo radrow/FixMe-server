@@ -91,3 +91,6 @@ create unique index status_name_uindex
   on status (name)
 ;
 
+insert into status values ('pending');
+insert into status values ('accepted');
+insert into status values ('fixed');

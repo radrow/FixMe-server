@@ -21,6 +21,13 @@ object Status {
         case "fixed" => Some(Fixed())
         case _ => None
     }
+
+    def toString(status: Status) = status match {
+      case Pending() => "pending"
+      case Accepted() => "accepted"
+      case Fixed() => "fixed"
+      case _ => ""
+    }
 }
 
 case class Report(id: Int,

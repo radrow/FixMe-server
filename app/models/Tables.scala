@@ -152,4 +152,6 @@ object Tables {
 
 		} yield reports
 	}
+
+	val reports = TableQuery[Reports]
 }
