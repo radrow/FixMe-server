@@ -40,7 +40,7 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
         Tables.tags += Tag(0, tag_to_add.name)
       )), Duration.Inf)
     } finally {
-      db.close()
+      //db.close()
     }
 
     Ok("elo\n")

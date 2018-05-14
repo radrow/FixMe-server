@@ -3,7 +3,7 @@ package models
 import slick.dbio.DBIOAction
 import slick.jdbc.GetResult
 import slick.jdbc.H2Profile.api._
-
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.ExecutionContext
 
 object Tables {
@@ -109,48 +109,52 @@ object Tables {
 		implicit val getReportResult: AnyRef with GetResult[ReportRow] =
 			GetResult(r => (r.nextInt(), r.nextString(), r.nextString(), r.nextInt(), r.nextString(), r.nextString()))
 
+		def listRows: DBIO[Seq[ReportRow]] = sql"SELECT * FROM report".as[ReportRow]
 
-		def list(implicit ec: ExecutionContext): DBIO[Seq[Report]] = for {
-			// get raw rows
-			reportRows: Seq[ReportRow] <- sql"SELECT * FROM report".as[ReportRow]
+		def all: DBIO[Seq[Report]] = {
+			for {
+				// get raw rows
+				reportRows: Seq[ReportRow] <- listRows
 
-			// combine DB IO actions into single results
-			reports <- DBIO.sequence(reportRows.map(r => {
-				Status.fromString(r._6) match { // check if I can parse Status
+				// combine DB IO actions into single results
+				reports <- DBIO.sequence(reportRows.map(r => {
+					Status.fromString(r._6) match { // check if I can parse Status
 
-					// if failed yield error
-					case None => DBIOAction.failed(new IllegalArgumentException("Unsupported status name: " ++ r._6))
+						// if failed yield error
+						case None => DBIOAction.failed(new IllegalArgumentException("Unsupported status name: " ++ r._6))
 
-					// if succeed return DBIO action...
-					case Some(status) => for {
+						// if succeed return DBIO action...
+						case Some(status) => for {
 
-						// yield who likes my report
-						upvoters <- (for {
-							uv <- upvotes
-							c <- clients if uv.report === r._1 && uv.client === c.id
-						} yield c).result
+							// yield who likes my report
+							upvoters <- (for {
+								uv <- upvotes
+								c <- clients if uv.report === r._1 && uv.client === c.id
+							} yield c).result
 
-						// yield used tags
-						tags <- (for {
-							rt <- reportTags
-							t <- tags if rt.report === r._1 && rt.tag_id === t.id
-						} yield t).result
+							// yield used tags
+							tags <- (for {
+								rt <- reportTags
+								t <- tags if rt.report === r._1 && rt.tag_id === t.id
+							} yield t).result
 
-						author <- clients.filter(_.id === r._4).result
+							author <- clients.filter(_.id === r._4).result
 
-						// return result in DBIO context
-					} yield Report(r._1,
-					               r._2,
-					               r._3,
-					               author.head,
-					               r._5,
-					               status,
-					               upvoters,
-					               tags)
-				}
-			}))
+							// return result in DBIO context
+						} yield Report(r._1,
+							r._2,
+							r._3,
+							author.head,
+							r._5,
+							status,
+							upvoters,
+							tags)
+					}
+				}))
 
-		} yield reports
+			} yield reports
+		}
+
 	}
 
 	val reports = TableQuery[Reports]
