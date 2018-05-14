@@ -8,154 +8,134 @@ import scala.concurrent.ExecutionContext
 
 object Tables {
 
-	class Clients(tag: slick.lifted.Tag) extends Table[Client](tag, "client") {
+  class Clients(tag: slick.lifted.Tag) extends Table[Client](tag, "client") {
 
-		def id = column[Int]("id", O.PrimaryKey, O.AutoInc, O.Unique)
+    def id = column[Int]("id", O.PrimaryKey, O.AutoInc, O.Unique)
 
-		def name = column[String]("name")
+    def name = column[String]("name")
 
-		def email = column[String]("email")
+    def email = column[String]("email")
 
-		def password = column[String]("password")
+    def password = column[String]("password")
 
-		override def * = (id, email, name, password) <> (Client.tupled, Client.unapply)
-	}
+    override def * = (id, email, name, password) <> (Client.tupled, Client.unapply)
+  }
 
-	object Clients {
-		implicit val getClientsResult: AnyRef with GetResult[Client] =
-			GetResult(r => Client(r.nextInt, r.nextString, r.nextString(), r.nextString()))
+  object Clients {
+    implicit val getClientsResult: AnyRef with GetResult[Client] =
+      GetResult(r => Client(r.nextInt, r.nextString, r.nextString(), r.nextString()))
 
-		def list: DBIO[Seq[Client]] = sql"SELECT * FROM client".as[Client]
-	}
-	val clients = TableQuery[Clients]
+    val all = TableQuery[Clients]
+  }
 
-	class Tags(tag: slick.lifted.Tag) extends Table[Tag](tag, "tag") {
-		def id = column[Int]("id", O.PrimaryKey, O.AutoInc, O.Unique)
+  class Tags(tag: slick.lifted.Tag) extends Table[Tag](tag, "tag") {
+    def id = column[Int]("id", O.PrimaryKey, O.AutoInc, O.Unique)
 
-		def name = column[String]("name", O.Unique)
+    def name = column[String]("name", O.Unique)
 
-		override def * = (id, name) <> (Tag.tupled, Tag.unapply)
+    override def * = (id, name) <> (Tag.tupled, Tag.unapply)
 
-	}
+  }
 
-	object Tags {
-		implicit val getTagsResult: AnyRef with GetResult[Tag] =
-			GetResult(r => Tag(r.nextInt(), r.nextString()))
+  object Tags {
+    implicit val getTagsResult: AnyRef with GetResult[Tag] =
+      GetResult(r => Tag(r.nextInt(), r.nextString()))
 
-		def list: DBIO[Seq[Tag]] = sql"SELECT * FROM tag".as[Tag]
+    val all = TableQuery[Tags]
+  }
 
-		//    def add(tagg: Tag): DBIO[Tag] = sql"INSERT INTO tag VALUES (tagg.id, tagg.name)"
-	}
-	val tags = TableQuery[Tags]
+  class Statuses(tag: slick.lifted.Tag) extends Table[String](tag, "status") {
+    def name = column[String]("name", O.PrimaryKey, O.Unique)
 
-	class Statuses(tag: slick.lifted.Tag) extends Table[String](tag, "status") {
-		def name = column[String]("name", O.PrimaryKey, O.Unique)
+    override def * = name
+  }
 
-		override def * = name
+  object Statuses {
+    implicit val getStatusesResult: AnyRef with GetResult[String] =
+      GetResult(r => r.nextString())
 
-	}
+    def all = TableQuery[Statuses]
+  }
 
-	object Statuses {
-		implicit val getStatusesResult: AnyRef with GetResult[String] =
-			GetResult(r => r.nextString())
+  class UpVotes(tag: slick.lifted.Tag) extends Table[(Int, Int)](tag, "upvote") {
+    def client_id = column[Int]("client_id")
 
-		def list: DBIO[Seq[String]] = sql"SELECT * FROM status".as[String]
-	}
+    def report_id = column[Int]("report_id")
 
-	class UpVotes(tag: slick.lifted.Tag) extends Table[(Int, Int)](tag, "upvote") {
-		def client = column[Int]("client_id")
-		def report = column[Int]("report_id")
-		def * = (client, report)
-		def pk = primaryKey("upvote_pk", (client, report))
-	}
-	object UpVotes {
-		implicit val getUpVotesResult: AnyRef with GetResult[(Int, Int)] =
-			GetResult(r => (r.nextInt(), r.nextInt()))
-	}
-	val upvotes = TableQuery[UpVotes]
+    def * = (client_id, report_id)
 
-	class ReportTags(tag: slick.lifted.Tag) extends Table[(Int, Int)](tag, "report_tag") {
-		def tag_id = column[Int]("tag_id")
-		def report = column[Int]("report_id")
-		def * = (tag_id, report)
-		def pk = primaryKey("report_tag_pk", (tag_id, report))
-	}
-	object ReportTags {
-		implicit val getReportTagsResult: AnyRef with GetResult[(Int, Int)] =
-			GetResult(r => (r.nextInt(), r.nextInt()))
-	}
-	val reportTags = TableQuery[ReportTags]
+    def pk = primaryKey("upvote_pk", (client_id, report_id))
+  }
 
-	type ReportRow = (Int, String, String, Int, String, String)
-	class Reports(tag: slick.lifted.Tag) extends Table[ReportRow](tag, "report") {
-		def id = column[Int]("id", O.PrimaryKey, O.AutoInc, O.Unique)
+  object UpVotes {
+    implicit val getUpVotesResult: AnyRef with GetResult[(Int, Int)] =
+      GetResult(r => (r.nextInt(), r.nextInt()))
+    val all = TableQuery[UpVotes]
+  }
 
-		def description = column[String]("description")
+  class ReportTags(tag: slick.lifted.Tag) extends Table[(Int, Int)](tag, "report_tag") {
+    def tag_id = column[Int]("tag_id")
 
-		def title = column[String]("title")
+    def report_id = column[Int]("report_id")
 
-		def clientid = column[Int]("client_id")
+    def * = (tag_id, report_id)
 
-		def location = column[String]("location")
+    def pk = primaryKey("report_tag_pk", (tag_id, report_id))
+  }
 
-		def statusname = column[String]("status_name")
+  object ReportTags {
+    implicit val getReportTagsResult: AnyRef with GetResult[(Int, Int)] =
+      GetResult(r => (r.nextInt(), r.nextInt()))
+    val all = TableQuery[ReportTags]
+  }
 
-		override def * =
-			(id, title, description, clientid, location, statusname)
+  type ReportRow = (Int, String, String, Int, String, String)
 
-	}
+  class Reports(tag: slick.lifted.Tag) extends Table[ReportRow](tag, "report") {
+    def id = column[Int]("id", O.PrimaryKey, O.AutoInc, O.Unique)
 
-	object Reports {
-		implicit val getReportResult: AnyRef with GetResult[ReportRow] =
-			GetResult(r => (r.nextInt(), r.nextString(), r.nextString(), r.nextInt(), r.nextString(), r.nextString()))
+    def description = column[String]("description")
 
-		def listRows: DBIO[Seq[ReportRow]] = sql"SELECT * FROM report".as[ReportRow]
+    def title = column[String]("title")
 
-		def all: DBIO[Seq[Report]] = {
-			for {
-				// get raw rows
-				reportRows: Seq[ReportRow] <- listRows
+    def clientid = column[Int]("client_id")
 
-				// combine DB IO actions into single results
-				reports <- DBIO.sequence(reportRows.map(r => {
-					Status.fromString(r._6) match { // check if I can parse Status
+    def location = column[String]("location")
 
-						// if failed yield error
-						case None => DBIOAction.failed(new IllegalArgumentException("Unsupported status name: " ++ r._6))
+    def statusname = column[String]("status_name")
 
-						// if succeed return DBIO action...
-						case Some(status) => for {
+    override def * =
+      (id, title, description, clientid, location, statusname)
 
-							// yield who likes my report
-							upvoters <- (for {
-								uv <- upvotes
-								c <- clients if uv.report === r._1 && uv.client === c.id
-							} yield c).result
+  }
 
-							// yield used tags
-							tags <- (for {
-								rt <- reportTags
-								t <- tags if rt.report === r._1 && rt.tag_id === t.id
-							} yield t).result
+  object Reports {
+    implicit val getReportResult: AnyRef with GetResult[ReportRow] =
+      GetResult(r => (r.nextInt(), r.nextString(), r.nextString(), r.nextInt(), r.nextString(), r.nextString()))
 
-							author <- clients.filter(_.id === r._4).result
+    private val allRows = TableQuery[Reports]
 
-							// return result in DBIO context
-						} yield Report(r._1,
-							r._2,
-							r._3,
-							author.head,
-							r._5,
-							status,
-							upvoters,
-							tags)
-					}
-				}))
+    def all =
 
-			} yield reports
-		}
+      for {
+        r <- allRows
+        tags: Seq[Tag] <- for {
+          rt <- ReportTags.all if rt.report_id === r.id
+          t <- Tags.all if rt.tag_id === t.id
+        } yield t
+        upvoters: Seq[Client] <- for {
+          u <- UpVotes.all if u.report_id === r.id
+          c <- Clients.all if u.client_id === c.id
+        } yield c
+        author: Client <- Clients.all.filter(_.id === r.clientid)
+      } yield Report(r.id, r.title, r.description, author, r.location, Status.fromString(r.statusname), upvoters, tags)
+  }
+  class Coffees(tag: slick.lifted.Tag) extends Table[(String, Double)](tag, "COFFEES") {
+    def name = column[String]("COF_NAME")
+    def price = column[Double]("PRICE")
+    def * = (name, price)
+  }
+  val coffees = TableQuery[Coffees]
 
-	}
-
-	val reports = TableQuery[Reports]
+  val reports = TableQuery[Reports]
 }

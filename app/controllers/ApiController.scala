@@ -46,7 +46,7 @@ class ApiController @Inject()(cc: ControllerComponents) extends AbstractControll
     val query = request.queryString
     val tag = query.get("tag")
     val location = query.get("location")
-    Await.result(db.run(Tables.Reports.all), Duration.Inf).foreach(println)
+    Await.result(db.run(Tables.Reports.all.result), Duration.Inf).foreach(println)
     Ok("PAPIESZ XD")
   }
 

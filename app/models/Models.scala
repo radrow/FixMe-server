@@ -14,19 +14,20 @@ abstract class Status
 case class Pending() extends Status
 case class Accepted() extends Status
 case class Fixed() extends Status
+case class Unknown(value: String) extends Status
 object Status {
-    def fromString(s: String): Option[Status] = s match {
-        case "pending" => Some(Pending())
-        case "accepted" => Some(Accepted())
-        case "fixed" => Some(Fixed())
-        case _ => None
+    def fromString(s: String): Status = s match {
+        case "pending" => Pending()
+        case "accepted" => Accepted()
+        case "fixed" => Fixed()
+        case s => Unknown(s)
     }
 
     def toString(status: Status) = status match {
       case Pending() => "pending"
       case Accepted() => "accepted"
       case Fixed() => "fixed"
-      case _ => ""
+      case Unknown(s) => s
     }
 }
 
