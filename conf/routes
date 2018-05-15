@@ -14,14 +14,12 @@ GET         /message               controllers.AsyncController.message
 GET         /assets/*file          controllers.Assets.versioned(path="/public", file: Asset)
 
 GET         /siema                 controllers.GitaraSiemaController.siema
-
 POST        /sendinfo              controllers.GitaraSiemaController.gitara
 
 GET         /api/hello             controllers.ApiController.hello
 
-POST        /api/addreport         controllers.ApiController.addreport
-
+POST        /api/addreport         controllers.ApiController.addReport
 POST        /web/addtag            controllers.GitaraSiemaController.addtag
 
-GET         /api/getreports        controllers.ApiController.getreports
+GET         /api/getreports        controllers.ApiController.getReports
 GET         /api/gettags           controllers.ApiController.getTags

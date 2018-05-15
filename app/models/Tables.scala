@@ -17,7 +17,7 @@ object Tables {
 
 		def password = column[String]("password")
 
-		override def * = (id, email, name, password) <> (Client.tupled, Client.unapply)
+		override def * = (id, email, name, password) <> ((Client.apply _).tupled, Client.unapply)
 	}
 
 	object Clients {
@@ -118,7 +118,6 @@ object Tables {
 				// combine DB IO actions into single results
 				reports <- DBIO.sequence(reportRows.map(r => {
 					for {
-
 						// yield who likes my report
 						upvoters <- (for {
 							uv <- upvotes
@@ -142,13 +141,9 @@ object Tables {
 					               Status.fromString(r._6),
 					               upvoters,
 					               tags)
-				}
-				))
-
+				}))
 			} yield reports
 		}
-
 	}
-
 	val reports = TableQuery[Reports]
 }

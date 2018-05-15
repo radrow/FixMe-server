@@ -24,7 +24,7 @@ class ApiController @Inject()(cc: ControllerComponents) extends AbstractControll
 		)
 	}
 
-	def addreport = Action(parse.form(ReportForm.reportForm)) { implicit request =>
+	def addReport = Action(parse.form(ReportForm.reportForm)) { implicit request =>
 		val report_to_add = request.body
 		println(report_to_add)
 
@@ -35,36 +35,18 @@ class ApiController @Inject()(cc: ControllerComponents) extends AbstractControll
 					report_to_add.description,
 					report_to_add.client_id,
 					report_to_add.location,
-					models.Status.toString(Pending())
+					Pending().toString
 			))
 		)), Duration.Inf)
 		Ok("elo\n")
 	}
 
-	def getreports = Action { implicit request =>
+	def getReports = Action { implicit request =>
 		val query = request.queryString
 		val tag = query.get("tag")
 		val location = query.get("location")
 		val reps = Await.result(db.run(Tables.Reports.all), Duration.Inf)
-		Ok(Json.stringify(Json.toJson(
-			reps.map(r =>
-				         Json.obj(
-					         "title" -> r.title,
-					         "description" -> r.description,
-					         "author" -> Json.obj(
-						         "email" -> r.author.email,
-						         "name" -> r.author.name
-					         ),
-					         "location" -> r.location,
-					         "status" -> models.Status.toString(r.status),
-					         "upvotes" -> Json.toJson(
-						         r.upvotes.map(u => Json.obj(
-							         "email" -> u.email,
-							         "name" -> u.name
-						         ))
-					         ),
-					         "tags" -> Json.toJson(
-						         r.tags.map(t => t.name)))))))
+		Ok(Json.stringify(Json.toJson(reps)))
 	}
 
 	def getTags = Action { implicit request =>
