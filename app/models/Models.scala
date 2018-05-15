@@ -20,7 +20,7 @@ object Status {
         case "pending" => Pending()
         case "accepted" => Accepted()
         case "fixed" => Fixed()
-        case s => Unknown(s)
+        case ss => Unknown(ss)
     }
 
     def toString(status: Status) = status match {
