@@ -19,6 +19,7 @@ import services.MailSender
 class ApiController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
 
   def hello = Action { implicit request =>
+    MailSender.send("sprawdziłeś tagi ziomek\n", "thewiztory@gmail.com")
     Ok(if (System.currentTimeMillis() / 1000 % 2 == 0)
       "uciekać" else "jestok"
     )
@@ -41,6 +42,10 @@ class ApiController @Inject()(cc: ControllerComponents) extends AbstractControll
             Pending().toString
           ))
         )), Duration.Inf)
+        val report_id = Await.result(db.run(Tables.Reports.max_id), Duration.Inf)
+        report_to_add.tags.foreach(t =>
+          Await.result(db.run(DBIO.seq(Tables.reportTags += (t, report_id))), Duration.Inf)
+        )
         Ok("elo\n")
       case None => Forbidden("wypierdalaj")
     }
@@ -63,7 +68,6 @@ class ApiController @Inject()(cc: ControllerComponents) extends AbstractControll
   }
 
   def getTags = Action { implicit request =>
-    MailSender.send("sprawdziłeś tagi ziomek\n", "thewiztory@gmail.com")
     val tags = Await.result(db.run(Tables.Tags.list), Duration.Inf)
     Ok(Json.stringify(Json.toJson(
       tags.map(t => t.name)

@@ -113,6 +113,12 @@ object Tables {
 
 		def listRows: DBIO[Seq[ReportRow]] = sql"SELECT * FROM report".as[ReportRow]
 
+		def max_id: DBIO[Int] = {
+			for {
+				reportRows: Seq[ReportRow] <- listRows
+			} yield reportRows.map(_._1).max
+		}
+
 		def all: DBIO[Seq[Report]] = {
 			for {
 				// get raw rows
