@@ -11,13 +11,12 @@ import slick.jdbc.H2Profile.api._
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import DBConnection.db
+import Validator.validateAdmin
+import play.api.libs.json.Json
 
 @Singleton
 class GitaraSiemaController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
-
-//  def db = Database.forURL("jdbc:postgresql://localhost:5432/FixMe-database", "fixme", "a")
-
-  val db = Database.forConfig("mydb")
 
   def siema = Action { implicit request =>
     Ok(views.html.siema())
@@ -34,16 +33,15 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
   }
 
   def addtag = Action(parse.form(TagForm.tagForm)) { implicit request =>
-    val tag_to_add = request.body
-    try {
-      Await.result(db.run(DBIO.seq(
-        Tables.tags += Tag(0, tag_to_add.name)
-      )), Duration.Inf)
-    } finally {
-      //db.close()
+    validateAdmin(request) match {
+      case Some(client) =>
+        val tag_to_add = request.body
+        Await.result(db.run(DBIO.seq(
+          Tables.tags += Tag(0, tag_to_add.name)
+        )), Duration.Inf)
+        Ok("elo\n")
+      case None => Forbidden("wypierdalaj")
     }
-
-    Ok("elo\n")
   }
 
 

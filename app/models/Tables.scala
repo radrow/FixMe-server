@@ -25,6 +25,9 @@ object Tables {
 			GetResult(r => Client(r.nextInt, r.nextString, r.nextString(), r.nextString()))
 
 		def list: DBIO[Seq[Client]] = sql"SELECT * FROM client".as[Client]
+
+		def getclient(u: String, p: String): DBIO[Option[Client]] =
+			clients.filter(c => c.name === u && c.password === p).result.map(_.headOption)
 	}
 	val clients = TableQuery[Clients]
 
