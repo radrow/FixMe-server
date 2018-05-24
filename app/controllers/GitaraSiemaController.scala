@@ -36,11 +36,16 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
     validateAdmin(request) match {
       case Some(client) =>
         val tag_to_add = request.body
-        Await.result(db.run(DBIO.seq(
-          Tables.tags += Tag(0, tag_to_add.name)
-        )), Duration.Inf)
-        Ok("elo\n")
-      case None => Forbidden("wypierdalaj")
+        try {
+          Await.result(db.run(DBIO.seq(
+            Tables.tags += Tag(0, tag_to_add.name)
+          )), Duration.Inf)
+          Ok("elo\n")
+        } catch {
+          case e: Exception => MethodNotAllowed("coś się pojebało\n")
+        }
+
+      case None => Forbidden("wypierdalaj\n")
     }
   }
 

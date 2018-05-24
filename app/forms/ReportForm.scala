@@ -4,16 +4,15 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.data.format.Formats._
 
-case class ReportForm(client_id: Int, title: String, description: String, location: String, tags: Seq[Int])
+case class ReportForm(title: String, description: String, location: String, tags: Seq[String])
 
 object ReportForm {
   val reportForm: Form[ReportForm] = Form(
     mapping(
-      "client_id" -> number,
       "title" -> text,
       "description" -> text,
       "location" -> text,
-      "tags" -> seq(number)
+      "tags" -> seq(text)
     )(ReportForm.apply)(ReportForm.unapply)
   )
 }
