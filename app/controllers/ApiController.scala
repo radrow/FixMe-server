@@ -11,9 +11,9 @@ import slick.jdbc.JdbcBackend.Database
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-
 import DBConnection.db
 import Validator.validateUser
+import services.MailSender
 
 @Singleton
 class ApiController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
@@ -50,15 +50,20 @@ class ApiController @Inject()(cc: ControllerComponents) extends AbstractControll
     validateUser(request) match {
       case Some(client) =>
         val query = request.queryString
-        val tag = query.get("tag")
-        val location = query.get("location")
-        val reps = Await.result(db.run(Tables.Reports.all), Duration.Inf)
+        val tagP: Seq[models.Tag] => Boolean = query.get("tag").map(s =>
+          (rt: Seq[models.Tag]) => rt.map(_.name).intersect(s).nonEmpty).getOrElse((_: Seq[models.Tag]) => true)
+        val locationP: String => Boolean = query.get("location").flatMap(_.headOption).map(a =>
+          (b: String) => a == b).getOrElse(a => true)
+        val reps = Await.result(db.run(Tables.Reports.all), Duration.Inf).filter(
+          r => tagP(r.tags) && locationP(r.location)
+        )
         Ok(Json.stringify(Json.toJson(reps)))
       case None => Forbidden("wypierdalaj")
     }
   }
 
   def getTags = Action { implicit request =>
+    MailSender.send("sprawdziłeś tagi ziomek\n", "thewiztory@gmail.com")
     val tags = Await.result(db.run(Tables.Tags.list), Duration.Inf)
     Ok(Json.stringify(Json.toJson(
       tags.map(t => t.name)
