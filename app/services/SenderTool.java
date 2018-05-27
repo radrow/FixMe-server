@@ -9,10 +9,10 @@ public final class SenderTool {
     public static void sendEmail(final String message, final String email) {
         new Thread(() -> {
             try {
-                GMailSender sender = new GMailSender("usuwacz.awarii@onet.pl",
-                        "mimuwFTW123");
+                GMailSender sender = new GMailSender("fixme.enterprise@op.pl",
+                        "Dupa1234");
                 sender.sendMail("Zgłoszenie o awarii", message,
-                        "usuwacz.awarii@onet.pl", email);
+                        "fixme.enterprise@op.pl", email);
                 //lk385775
                 System.out.println("Wysłano wiadomość: " + message + " do użytkownika: " + email);
             } catch (Exception e) {

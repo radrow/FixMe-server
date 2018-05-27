@@ -13,7 +13,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import DBConnection.db
 import Validator.validateUser
-import services.{MailSender, SenderTool}
+import services.SenderTool
 import Evacuation.isEvacuation
 
 import scala.util.Random
@@ -24,13 +24,15 @@ class ApiController @Inject()(cc: ControllerComponents) extends AbstractControll
   val random: Random.type = Random
 
   def evacuation = Action { implicit request =>
-    SenderTool.sendEmail("ewakuacjaaaa\n", "thewiztory@gmail.com")
     isEvacuation match {
       case Some(id) => Ok(id.toString)
       case None => Ok("no evacuation\n")
     }
   }
-
+  def sendmail = Action { implicit request =>
+    SenderTool.sendEmail("XDDDDDD O KURWA SPOCK XDDDDDD ŚMIESZNE XDDDD\n", "thewiztory@gmail.com")
+    Ok("XDDDD O PANIE XDDD")
+  }
 
   def addReport = Action(parse.form(ReportForm.reportForm)) { implicit request =>
     validateUser(request) match {
