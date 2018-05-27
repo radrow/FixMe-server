@@ -5,7 +5,10 @@ import play.api.libs.json.{Json, Writes}
 case class Client(id: Int,
                   email: String,
                   name: String,
-                  password: String
+                  password: String,
+									is_admin: Boolean,
+									is_activated: Boolean,
+									register_code: Int
                  )
 
 case object Client {
@@ -16,7 +19,7 @@ case object Client {
 	)
 }
 
-case class Tag(id: Int, name: String)
+case class Tag(id: Int, name: String, email: String)
 
 abstract class Status
 case class Pending() extends Status {

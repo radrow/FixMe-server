@@ -17,17 +17,23 @@ object Tables {
 
 		def password = column[String]("password")
 
-		override def * = (id, email, name, password) <> ((Client.apply _).tupled, Client.unapply)
+		def is_admin = column[Boolean]("is_admin")
+
+		def is_activated = column[Boolean]("is_activated")
+
+		def register_code = column[Int]("register_code")
+
+		override def * = (id, email, name, password, is_admin, is_activated, register_code)<> ((Client.apply _).tupled, Client.unapply)
 	}
 
 	object Clients {
 		implicit val getClientsResult: AnyRef with GetResult[Client] =
-			GetResult(r => Client(r.nextInt, r.nextString, r.nextString(), r.nextString()))
+			GetResult(r => Client(r.nextInt, r.nextString, r.nextString(), r.nextString(), r.nextBoolean(), r.nextBoolean(), r.nextInt()))
 
 		def list: DBIO[Seq[Client]] = sql"SELECT * FROM client".as[Client]
 
 		def getclient(u: String, p: String): DBIO[Option[Client]] =
-			clients.filter(c => c.name === u && c.password === p).result.map(_.headOption)
+			clients.filter(c => c.email === u && c.password === p).result.map(_.headOption)
 	}
 	val clients = TableQuery[Clients]
 
@@ -36,13 +42,15 @@ object Tables {
 
 		def name = column[String]("name", O.Unique)
 
-		override def * = (id, name) <> (Tag.tupled, Tag.unapply)
+		def email = column[String]("email")
+
+		override def * = (id, name, email) <> (Tag.tupled, Tag.unapply)
 
 	}
 
 	object Tags {
 		implicit val getTagsResult: AnyRef with GetResult[Tag] =
-			GetResult(r => Tag(r.nextInt(), r.nextString()))
+			GetResult(r => Tag(r.nextInt(), r.nextString(), r.nextString()))
 
 		def list: DBIO[Seq[Tag]] = sql"SELECT * FROM tag".as[Tag]
 

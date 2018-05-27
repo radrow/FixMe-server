@@ -21,9 +21,9 @@ object Validator {
 
   def validateAdmin(request: Request[AnyRef]): Option[Client] =
     for {
-      username <- request.headers.get("Username") if username == "marcin peczarski"
+      username <- request.headers.get("Username")
       password <- request.headers.get("Password")
-      c <- Await.result(db.run(Clients.getclient(username, password)), Duration.Inf)
+      c <- Await.result(db.run(Clients.getclient(username, password)), Duration.Inf).filter(c => c.is_admin)
     } yield c
 
 }

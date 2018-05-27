@@ -1,3 +1,11 @@
+drop table if exists client cascade;
+drop table if exists tag cascade;
+drop table if exists status cascade;
+drop table if exists report cascade;
+drop table if exists report_tag cascade;
+drop table if exists upvote cascade;
+
+
 create table client
 (
   id serial not null
@@ -5,7 +13,10 @@ create table client
     primary key,
   email varchar(100) not null,
   name varchar(100) not null,
-  password varchar(40) not null
+  password varchar(40) not null,
+  is_admin boolean not null,
+  is_activated boolean not null,
+  register_code integer not null
 )
 ;
 
@@ -22,7 +33,8 @@ create table tag
   id serial not null
     constraint tag_pkey
     primary key,
-  name varchar(20) not null
+  name varchar(20) not null,
+  email varchar(100) not null
 )
 ;
 
@@ -94,3 +106,12 @@ create unique index status_name_uindex
 insert into status values ('pending');
 insert into status values ('accepted');
 insert into status values ('fixed');
+
+insert into tag values (nextval('tag_id_seq'), 'tagA', 'thewiztory@gmail.com');
+insert into tag values (nextval('tag_id_seq'), 'tagB', 'thewiztory@gmail.com');
+insert into tag values (nextval('tag_id_seq'), 'tagC', 'thewiztory@gmail.com');
+insert into tag values (nextval('tag_id_seq'), 'tagD', 'thewiztory@gmail.com');
+insert into tag values (nextval('tag_id_seq'), 'tagE', 'thewiztory@gmail.com');
+
+insert into client values (nextval('client_id_seq'), 'peczar@cpp.pl', 'marcin peczarski', 'cppjestfajny', true, true, 0);
+insert into client values (nextval('client_id_seq'), 'admin@admin.com', 'admin', 'admin', true, true, 0);

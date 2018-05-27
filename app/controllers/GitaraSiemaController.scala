@@ -38,7 +38,7 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
         val tag_to_add = request.body
         try {
           Await.result(db.run(DBIO.seq(
-            Tables.tags += Tag(0, tag_to_add.name)
+            Tables.tags += Tag(0, tag_to_add.name, tag_to_add.email)
           )), Duration.Inf)
           Ok("elo\n")
         } catch {
