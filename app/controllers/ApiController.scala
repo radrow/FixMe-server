@@ -13,7 +13,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import DBConnection.db
 import Validator.validateUser
-import services.MailSender
+import services.{MailSender, SenderTool}
 import Evacuation.isEvacuation
 
 import scala.util.Random
@@ -24,7 +24,7 @@ class ApiController @Inject()(cc: ControllerComponents) extends AbstractControll
   val random: Random.type = Random
 
   def evacuation = Action { implicit request =>
-    //MailSender.send("sprawdziłeś tagi ziomek\n", "thewiztory@gmail.com")
+    SenderTool.sendEmail("ewakuacjaaaa\n", "thewiztory@gmail.com")
     isEvacuation match {
       case Some(id) => Ok(id.toString)
       case None => Ok("no evacuation\n")
@@ -54,7 +54,10 @@ class ApiController @Inject()(cc: ControllerComponents) extends AbstractControll
           report_to_add.tags.foreach(t =>
             Await.result(db.run(DBIO.seq(Tables.reportTags += (all_tags(t), report_id))), Duration.Inf)
           )
-          // TODO wyślij maila
+          Await
+            .result(db.run(Tables.Tags.list), Duration.Inf)
+            .filter(t => report_to_add.tags.contains(t.name))
+            .foreach(t => SenderTool.sendEmail(report_to_add.toString, t.email))
           Ok("elo\n")
         } catch {
           case e: Exception => MethodNotAllowed("coś się pojebało\n")
@@ -115,8 +118,8 @@ class ApiController @Inject()(cc: ControllerComponents) extends AbstractControll
           token
         )
       )), Duration.Inf)
-      //TODO wyślij maila
-      Ok("elo\n")
+      SenderTool.sendEmail("Your token for FixMe app is: " ++ token.toString ++ ".\n", register.email)
+      Ok("tmp: " ++ token.toString ++ "\n")
     }
   }
 
