@@ -14,15 +14,17 @@ import scala.concurrent.duration._
 import DBConnection.db
 import Validator.validateUser
 import services.MailSender
+import Evacuation.isEvacuation
 
 @Singleton
 class ApiController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
 
   def hello = Action { implicit request =>
     //MailSender.send("sprawdziłeś tagi ziomek\n", "thewiztory@gmail.com")
-    Ok(if (System.currentTimeMillis() / 1000 % 2 == 0)
-      "uciekać\n" else "jestok\n"
-    )
+    isEvacuation match {
+      case Some(id) => Ok(id)
+      case None => Ok("no evacuation\n")
+    }
   }
 
 
