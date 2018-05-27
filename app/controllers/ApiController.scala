@@ -19,10 +19,10 @@ import Evacuation.isEvacuation
 @Singleton
 class ApiController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
 
-  def hello = Action { implicit request =>
+  def evacuation = Action { implicit request =>
     //MailSender.send("sprawdziłeś tagi ziomek\n", "thewiztory@gmail.com")
     isEvacuation match {
-      case Some(id) => Ok(id)
+      case Some(id) => Ok(id.toString)
       case None => Ok("no evacuation\n")
     }
   }
