@@ -80,4 +80,11 @@ class ApiController @Inject()(cc: ControllerComponents) extends AbstractControll
     )))
   }
 
+  def isValidUser = Action { implicit request =>
+    validateUser(request) match {
+      case Some(client) => Ok("valid\n")
+      case None => Forbidden("not valid\n")
+    }
+  }
+
 }

@@ -23,3 +23,5 @@ POST        /web/addtag            controllers.GitaraSiemaController.addtag
 
 GET         /api/getreports        controllers.ApiController.getReports
 GET         /api/gettags           controllers.ApiController.getTags
+
+GET         /api/isvaliduser       controllers.ApiController.isValidUser
