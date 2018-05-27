@@ -1,6 +1,6 @@
 package controllers
 
-import forms.ReportForm
+import forms.{ActivateForm, RegisterForm, ReportForm}
 import javax.inject.{Inject, Singleton}
 import models.Tables.Clients
 import models.{Client, Pending, Tables}
@@ -16,8 +16,12 @@ import Validator.validateUser
 import services.MailSender
 import Evacuation.isEvacuation
 
+import scala.util.Random
+
 @Singleton
 class ApiController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
+
+  val random: Random.type = Random
 
   def evacuation = Action { implicit request =>
     //MailSender.send("sprawdziłeś tagi ziomek\n", "thewiztory@gmail.com")
@@ -86,6 +90,61 @@ class ApiController @Inject()(cc: ControllerComponents) extends AbstractControll
     validateUser(request) match {
       case Some(client) => Ok("valid\n")
       case None => Forbidden("not valid\n")
+    }
+  }
+
+  def emailNotUnique(email: String): Boolean = {
+    Await.result(db.run(Clients.list), Duration.Inf).exists(c => c.email.equals(email))
+  }
+
+  def registerUser = Action(parse.form(RegisterForm.registerForm)) { implicit request =>
+    val register = request.body
+    if (emailNotUnique(register.email)) {
+      BadRequest("This email is already used\n")
+    } else {
+      val token = random.nextInt(10000)
+      println(token)
+      Await.result(db.run(DBIO.seq(
+        Tables.clients += Client(
+          0,
+          register.email,
+          register.name,
+          register.password,
+          false,
+          false,
+          token
+        )
+      )), Duration.Inf)
+      //TODO wyślij maila
+      Ok("elo\n")
+    }
+  }
+
+  def readyToActivate(form: ActivateForm): Boolean = {
+    Await
+      .result(db.run(Tables.Clients.list), Duration.Inf)
+      .exists(c =>
+        c.is_activated == false &&
+        c.email.equals(form.email) &&
+        c.password.equals(form.password) &&
+        c.register_code == form.token
+      )
+  }
+
+  def activateUser = Action(parse.form(ActivateForm.activateForm)) { implicit request =>
+    val activate = request.body
+    if (readyToActivate(activate)) {
+      val query = for {
+        client <- Tables.clients if client.email === activate.email &&
+          client.password === activate.password &&
+          client.register_code === activate.token &&
+          client.is_activated === false
+      } yield (client.is_activated, client.register_code)
+      val updateAction = query.update(true, 0)
+      Await.result(db.run(updateAction), Duration.Inf)
+      Ok("elo\n")
+    } else {
+      BadRequest("coś nie pykło\n")
     }
   }
 

@@ -13,7 +13,7 @@ object Tables {
 
 		def name = column[String]("name")
 
-		def email = column[String]("email")
+		def email = column[String]("email", O.Unique)
 
 		def password = column[String]("password")
 

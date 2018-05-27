@@ -25,3 +25,6 @@ GET         /api/getreports        controllers.ApiController.getReports
 GET         /api/gettags           controllers.ApiController.getTags
 
 GET         /api/isvaliduser       controllers.ApiController.isValidUser
+
+POST        /api/register          controllers.ApiController.registerUser
+POST        /api/activate          controllers.ApiController.activateUser
