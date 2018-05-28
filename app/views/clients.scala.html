@@ -8,7 +8,7 @@
 					@c.name
 				<form action="/web/ban" method="POST">
 					@helper.CSRF.formField
-				<input type="hidden" name="report" value="@c.id">
+				<input type="hidden" name="email" value="@c.email">
 				<input type="submit" value="BAN">
 				</form>
 				</li>
