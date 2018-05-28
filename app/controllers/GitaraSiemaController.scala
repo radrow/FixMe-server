@@ -49,20 +49,11 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
     }
   }
 
-  def evacuationON = Action(parse.form(EvacuationForm.evacuationForm)) { implicit request =>
+  def evacuationToggle= Action(parse.form(EvacuationForm.evacuationForm)) { implicit request =>
     validateAdmin(request) match {
       case Some(client) =>
-        Evacuation.isNow = true
+        Evacuation.isNow = !Evacuation.isNow
         Evacuation.id += 1
-        Ok("elo\n")
-      case None => Forbidden("wypierdalaj\n")
-    }
-  }
-
-  def evacuationOFF = Action(parse.form(EvacuationForm.evacuationForm)) { implicit request =>
-    validateAdmin(request) match {
-      case Some(client) =>
-        Evacuation.isNow = false
         Ok("elo\n")
       case None => Forbidden("wypierdalaj\n")
     }
@@ -101,6 +92,21 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
       case Some(client) => Ok.withCookies(Cookie("login", request.body.login), Cookie("password", request.body.password))
       case None => Forbidden
     }
+  }
+
+  def reports = Action { implicit request =>
+    val reps = Await.result(db.run(Tables.Reports.all), Duration.Inf)
+      Ok(views.html.reports(reps))
+  }
+
+  def clients = Action { implicit request =>
+    val clients = Await.result(db.run(Tables.Clients.list), Duration.Inf)
+    Ok(views.html.clients(clients))
+  }
+
+  def tags = Action { implicit request =>
+    val tags = Await.result(db.run(Tables.Tags.list), Duration.Inf)
+    Ok(views.html.tagedit(tags))
   }
 
 }
