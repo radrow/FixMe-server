@@ -3,7 +3,7 @@
 <html>
 	<body>
 		<ul>
-			@for(c <- clients) {
+			@for(c <- clients.sortBy(_.id)) {
 				<li>
 					@c.name
 				<form action="/web/ban" method="POST">
