@@ -33,7 +33,7 @@ create table tag
   id serial not null
     constraint tag_pkey
     primary key,
-  name varchar(20) not null,
+  name varchar(30) not null,
   email varchar(100) not null
 )
 ;
@@ -115,3 +115,16 @@ insert into tag values (nextval('tag_id_seq'), 'tagE', 'thewiztory@gmail.com');
 
 insert into client values (nextval('client_id_seq'), 'peczar@cpp.pl', 'marcin peczarski', 'cppjestfajny', true, true, 0);
 insert into client values (nextval('client_id_seq'), 'admin@admin.com', 'admin', 'admin', true, true, 0);
+insert into client values (nextval('client_id_seq'), 'aw386379@students.mimuw.edu.pl', 'Adam Wiktor', 'admin', false, true, 0);
+insert into client values (nextval('client_id_seq'), 'asdad@we.w', 'Radek Rowicki', 'admin', false, true, 0);
+insert into client values (nextval('client_id_seq'), 'AWDWd3@wa.w', 'Łukasz Kondraciuk', 'admin', false, true, 0);
+insert into client values (nextval('client_id_seq'), 'awqwq@op.pl', 'Szymon Zwara', 'admin', false, true, 0);
+
+insert into tag values (nextval('tag_id_seq'), 'Zepsuty przedmiot', 'aw386379@students.mimuw.edu.pl');
+insert into tag values (nextval('tag_id_seq'), 'Dyspozytor wody', 'lk385775@students.mimuw.edu.pl');
+insert into tag values (nextval('tag_id_seq'), 'Hydraulika', 'aw386379@students.mimuw.edu.pl');
+insert into tag values (nextval('tag_id_seq'), 'Okna/drzwi', 'aw386379@students.mimuw.edu.pl');
+insert into tag values (nextval('tag_id_seq'), 'Students', 'rr386088@students.mimuw.edu.pl');
+insert into tag values (nextval('tag_id_seq'), 'Sprzęt elektroniczny', 'rr386088@students.mimuw.edu.pl');
+insert into tag values (nextval('tag_id_seq'), 'Lampy', 'aw386379@students.mimuw.edu.pl');
+insert into tag values (nextval('tag_id_seq'), 'Bałagan', 'sz383558@students.mimuw.edu.pl');
