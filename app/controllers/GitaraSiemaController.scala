@@ -74,7 +74,7 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
       case Some(client) =>
         val query = for {
           client <- Tables.clients if client.email === banUser.email && !client.is_admin
-        } yield (client.register_code)
+        } yield client.register_code
         val updateAction = query.update(10000)
         Await.result(db.run(updateAction), Duration.Inf)
         Ok("elo\n")
@@ -87,7 +87,7 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
     validateAdmin(changeStatus.login, changeStatus.password) match {
       case Some(client) =>
         val query = for {
-          report <- Tables.reports if report.id == changeStatus.report
+          report <- Tables.reports if report.id === changeStatus.report
         } yield report.statusname
         val updateAction = query.update(changeStatus.status)
         Await.result(db.run(updateAction), Duration.Inf)
