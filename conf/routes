@@ -14,7 +14,10 @@ GET         /sendmail              controllers.ApiController.sendmail
 GET         /api/isevacuation      controllers.ApiController.evacuation
 
 POST        /api/addreport         controllers.ApiController.addReport
+
 POST        /web/addtag            controllers.GitaraSiemaController.addtag
+GET         /web/evacuation/on     controllers.GitaraSiemaController.evacuationON
+GET         /web/evacuation/off    controllers.GitaraSiemaController.evacuationOFF
 
 GET         /api/getreports        controllers.ApiController.getReports
 GET         /api/gettags           controllers.ApiController.getTags

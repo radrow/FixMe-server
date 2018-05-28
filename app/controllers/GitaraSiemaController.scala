@@ -49,5 +49,23 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
     }
   }
 
+  def evacuationON = Action { implicit request =>
+    validateAdmin(request) match {
+      case Some(client) =>
+        Evacuation.isNow = true
+        Evacuation.id += 1
+        Ok("elo\n")
+      case None => Forbidden("wypierdalaj\n")
+    }
+  }
+
+  def evacuationOFF = Action { implicit request =>
+    validateAdmin(request) match {
+      case Some(client) =>
+        Evacuation.isNow = false
+        Ok("elo\n")
+      case None => Forbidden("wypierdalaj\n")
+    }
+  }
 
 }
