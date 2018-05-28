@@ -23,6 +23,7 @@
 	<a href="/web/reports">Zgłoszenia</a>
 	<a href="/web/clients">Użytkownicy</a>
 	<form action="/web/toggleevacuation" method="POST">
+		@helper.CSRF.formField
 	@if(panic) {
 		<input type="submit" value="Turn evacuation OFF">
 	} else {
