@@ -6,11 +6,15 @@
 			@for(c <- clients.sortBy(_.id)) {
 				<li>
 					@c.name
-				<form action="/web/ban" method="POST">
-					@helper.CSRF.formField
-				<input type="hidden" name="email" value="@c.email">
-				<input type="submit" value="BAN">
-				</form>
+					@if(c.register_code == 10000) {
+						(BANNED)
+					} else {
+						<form action="/web/ban" method="POST">
+							@helper.CSRF.formField
+							<input type="hidden" name="email" value="@c.email">
+							<input type="submit" value="BAN">
+						</form>
+					}
 				</li>
 			}
 		</ul>
