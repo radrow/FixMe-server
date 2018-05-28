@@ -1,0 +1,18 @@
+@(clients: Seq[Client])(implicit request: RequestHeader)
+
+<html>
+	<body>
+		<ul>
+			@for(c <- clients) {
+				<li>
+					@c.name
+				<form action="/web/ban" method="POST">
+					@helper.CSRF.formField
+				<input type="hidden" name="report" value="@c.id">
+				<input type="submit" value="BAN">
+				</form>
+				</li>
+			}
+		</ul>
+	</body>
+</html>

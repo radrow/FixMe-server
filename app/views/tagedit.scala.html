@@ -1,0 +1,23 @@
+@(tags: Seq[Tag])(implicit request: RequestHeader)
+
+<html>
+	<body>
+		<ul>
+			@for(t <- tags) {
+				<li>@t.name</li>
+			}
+		</ul>
+		<form action="/web/addtag" method="POST">
+			@helper.CSRF.formField
+			DODAJ TAG
+
+			<label title="TARGET MAIL">
+				<input type="email" name="email">
+			</label>
+			<label title="TAG NAME">
+				<input type="text" name="name">
+			</label>
+			<input type="submit" value="POST">
+		</form>
+	</body>
+</html>

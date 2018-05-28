@@ -1,0 +1,45 @@
+@(reports: Seq[Report])(login: String)(password: String)(implicit request: RequestHeader)
+
+<html>
+	<body>
+		<ul>
+			@for(r <- reports) {
+				<li>
+					<table>
+						<tr>
+							<td>@r.id.toString</td>
+							<td>@r.title</td>
+						</tr>
+						<tr>
+							<td>@r.description</td>
+						</tr>
+						<tr>
+							<td>@r.location</td>
+							<td>@r.status</td>
+							<td>@r.tags</td>
+						</tr>
+					</table>
+
+					<form action="/web/setreport" method="POST">
+						@helper.CSRF.formField
+					<input type="hidden" name="report" value="@r.id">
+					<input type="hidden" name="status" value="pending">
+					<input type="submit" value="pending">
+					</form>
+					<form action="/web/setreport" method="POST">
+						@helper.CSRF.formField
+					<input type="hidden" name="report" value="@r.id">
+					<input type="hidden" name="status" value="fixed">
+					<input type="submit" value="fixed">
+					</form>
+					<form action="/web/setreport" method="POST">
+						@helper.CSRF.formField
+					<input type="hidden" name="report" value="@r.id">
+					<input type="hidden" name="status" value="accepted">
+					<input type="submit" value="accepted">
+					</form>
+				</li>
+			}
+		</ul>
+	</body>
+</html>
