@@ -4,7 +4,7 @@ import forms._
 import javax.inject.{Inject, Singleton}
 import models.Tables.Tags
 import models.{Tables, Tag}
-import play.api.mvc.{AbstractController, ControllerComponents}
+import play.api.mvc.{AbstractController, ControllerComponents, Cookie}
 import slick.jdbc.JdbcBackend.Database
 import slick.lifted.TableQuery
 import slick.jdbc.H2Profile.api._
@@ -33,9 +33,9 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
   }
 
   def addtag = Action(parse.form(TagForm.tagForm)) { implicit request =>
-    val tag_to_add = request.body
-    validateAdmin(tag_to_add.login, tag_to_add.password) match {
+    validateAdmin(request) match {
       case Some(client) =>
+        val tag_to_add = request.body
         try {
           Await.result(db.run(DBIO.seq(
             Tables.tags += Tag(0, tag_to_add.name, tag_to_add.email)
@@ -50,7 +50,7 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
   }
 
   def evacuationON = Action(parse.form(EvacuationForm.evacuationForm)) { implicit request =>
-    validateAdmin(request.body.login, request.body.password) match {
+    validateAdmin(request) match {
       case Some(client) =>
         Evacuation.isNow = true
         Evacuation.id += 1
@@ -60,7 +60,7 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
   }
 
   def evacuationOFF = Action(parse.form(EvacuationForm.evacuationForm)) { implicit request =>
-    validateAdmin(request.body.login, request.body.password) match {
+    validateAdmin(request) match {
       case Some(client) =>
         Evacuation.isNow = false
         Ok("elo\n")
@@ -69,9 +69,9 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
   }
 
   def banUser = Action(parse.form(BanUserForm.banUserForm)) { implicit request =>
-    val banUser = request.body
-    validateAdmin(banUser.email, banUser.password) match {
+    validateAdmin(request) match {
       case Some(client) =>
+        val banUser = request.body
         val query = for {
           client <- Tables.clients if client.email === banUser.email && !client.is_admin
         } yield client.register_code
@@ -83,9 +83,9 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
   }
 
   def changeReportStatus = Action(parse.form(ChangeStatusForm.changeStatusForm)) { implicit request =>
-    val changeStatus = request.body
-    validateAdmin(changeStatus.login, changeStatus.password) match {
+    validateAdmin(request) match {
       case Some(client) =>
+        val changeStatus = request.body
         val query = for {
           report <- Tables.reports if report.id === changeStatus.report
         } yield report.statusname
@@ -93,6 +93,13 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
         Await.result(db.run(updateAction), Duration.Inf)
         Ok("elo\n")
       case None => Forbidden("wypierdalaj\n")
+    }
+  }
+
+  def adminLogin = Action(parse.form(AdminLoginForm.adminLoginForm)) { implicit request =>
+    validateAdmin(request) match {
+      case Some(client) => Ok.withCookies(Cookie("login", request.body.login), Cookie("password", request.body.password))
+      case None => Forbidden
     }
   }
 

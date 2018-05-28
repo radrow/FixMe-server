@@ -19,9 +19,11 @@ object Validator {
       c <- Await.result(db.run(Clients.getclient(username, password)), Duration.Inf).filter(c => c.is_activated && c.register_code != 10000)
     } yield c
 
-  def validateAdmin(email: String, password: String): Option[Client] =
+  def validateAdmin(request: Request[AnyRef]): Option[Client] =
     for {
-      c <- Await.result(db.run(Clients.getclient(email, password)), Duration.Inf).filter(c => c.is_activated && c.is_admin)
+      login <- request.cookies.get("login")
+      password <- request.cookies.get("password")
+      c <- Await.result(db.run(Clients.getclient(login.value, password.value)), Duration.Inf).filter(c => c.is_activated && c.is_admin)
     } yield c
 
 }
