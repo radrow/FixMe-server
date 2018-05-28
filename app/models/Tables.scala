@@ -159,7 +159,7 @@ object Tables {
 					               upvoters,
 					               tags)
 				}))
-			} yield reports
+			} yield reports.sortBy(_.id)
 		}
 	}
 	val reports = TableQuery[Reports]

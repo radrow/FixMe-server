@@ -5,21 +5,21 @@
 		<ul>
 			@for(r <- reports) {
 				<li>
-					<table>
+					<table border="1px 1px 1px 1px">
 						<tr>
 							<td>@r.id.toString</td>
-							<td>@r.title</td>
+							<td>Tytuł: @r.title</td>
 						</tr>
 						<tr>
-							<td>@r.description</td>
+							<td>Opis: @r.description</td>
 						</tr>
 						<tr>
-							<td>@r.location</td>
-							<td>@r.status</td>
-							<td>@r.tags</td>
+							<td>Miejsce: @r.location</td>
+							<td>Status: @r.status</td>
+							<td>Tagi: @r.tags.map(_.name)</td>
 						</tr>
 					</table>
-
+					Zmień status:
 					<form action="/web/setreport" method="POST">
 						@helper.CSRF.formField
 					<input type="hidden" name="report" value="@r.id">
