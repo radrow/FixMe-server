@@ -16,14 +16,12 @@ object Validator {
     for {
       username <- request.headers.get("Username")
       password <- request.headers.get("Password")
-      c <- Await.result(db.run(Clients.getclient(username, password)), Duration.Inf).filter(c => c.is_activated)
+      c <- Await.result(db.run(Clients.getclient(username, password)), Duration.Inf).filter(c => c.is_activated && c.register_code != 10000)
     } yield c
 
-  def validateAdmin(request: Request[AnyRef]): Option[Client] =
+  def validateAdmin(email: String, password: String): Option[Client] =
     for {
-      username <- request.headers.get("Username")
-      password <- request.headers.get("Password")
-      c <- Await.result(db.run(Clients.getclient(username, password)), Duration.Inf).filter(c => c.is_activated && c.is_admin)
+      c <- Await.result(db.run(Clients.getclient(email, password)), Duration.Inf).filter(c => c.is_activated && c.is_admin)
     } yield c
 
 }

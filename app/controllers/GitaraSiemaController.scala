@@ -1,6 +1,6 @@
 package controllers
 
-import forms.{ReportForm, TagForm}
+import forms._
 import javax.inject.{Inject, Singleton}
 import models.Tables.Tags
 import models.{Tables, Tag}
@@ -33,9 +33,9 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
   }
 
   def addtag = Action(parse.form(TagForm.tagForm)) { implicit request =>
-    validateAdmin(request) match {
+    val tag_to_add = request.body
+    validateAdmin(tag_to_add.login, tag_to_add.password) match {
       case Some(client) =>
-        val tag_to_add = request.body
         try {
           Await.result(db.run(DBIO.seq(
             Tables.tags += Tag(0, tag_to_add.name, tag_to_add.email)
@@ -49,8 +49,8 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
     }
   }
 
-  def evacuationON = Action { implicit request =>
-    validateAdmin(request) match {
+  def evacuationON = Action(parse.form(EvacuationForm.evacuationForm)) { implicit request =>
+    validateAdmin(request.body.login, request.body.password) match {
       case Some(client) =>
         Evacuation.isNow = true
         Evacuation.id += 1
@@ -59,10 +59,38 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
     }
   }
 
-  def evacuationOFF = Action { implicit request =>
-    validateAdmin(request) match {
+  def evacuationOFF = Action(parse.form(EvacuationForm.evacuationForm)) { implicit request =>
+    validateAdmin(request.body.login, request.body.password) match {
       case Some(client) =>
         Evacuation.isNow = false
+        Ok("elo\n")
+      case None => Forbidden("wypierdalaj\n")
+    }
+  }
+
+  def banUser = Action(parse.form(BanUserForm.banUserForm)) { implicit request =>
+    val banUser = request.body
+    validateAdmin(banUser.email, banUser.password) match {
+      case Some(client) =>
+        val query = for {
+          client <- Tables.clients if client.email === banUser.email && !client.is_admin
+        } yield (client.register_code)
+        val updateAction = query.update(10000)
+        Await.result(db.run(updateAction), Duration.Inf)
+        Ok("elo\n")
+      case None => Forbidden("wypierdalaj\n")
+    }
+  }
+
+  def changeReportStatus = Action(parse.form(ChangeStatusForm.changeStatusForm)) { implicit request =>
+    val changeStatus = request.body
+    validateAdmin(changeStatus.login, changeStatus.password) match {
+      case Some(client) =>
+        val query = for {
+          report <- Tables.reports if report.id == changeStatus.report
+        } yield report.statusname
+        val updateAction = query.update(changeStatus.status)
+        Await.result(db.run(updateAction), Duration.Inf)
         Ok("elo\n")
       case None => Forbidden("wypierdalaj\n")
     }
