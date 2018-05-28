@@ -88,7 +88,7 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
   }
 
   def adminLogin = Action(parse.form(AdminLoginForm.adminLoginForm)) { implicit request =>
-    validateAdmin(request) match {
+    validateAdmin(request.body.login, request.body.password) match {
       case Some(client) => Ok.withCookies(Cookie("login", request.body.login), Cookie("password", request.body.password))
       case None => Forbidden("Złe hasło/login :)")
     }

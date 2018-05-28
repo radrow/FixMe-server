@@ -7,7 +7,6 @@ import slick.jdbc.JdbcBackend.Database
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-
 import DBConnection.db
 
 object Validator {
@@ -24,6 +23,11 @@ object Validator {
       login <- request.cookies.get("login")
       password <- request.cookies.get("password")
       c <- Await.result(db.run(Clients.getclient(login.value, password.value)), Duration.Inf).filter(c => c.is_activated && c.is_admin)
+    } yield c
+
+  def validateAdmin(login: String, password: String): Option[Client] =
+    for {
+      c <- Await.result(db.run(Clients.getclient(login, password)), Duration.Inf).filter(c => c.is_activated && c.is_admin)
     } yield c
 
 }
