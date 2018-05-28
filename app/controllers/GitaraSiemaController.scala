@@ -90,7 +90,7 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
   def adminLogin = Action(parse.form(AdminLoginForm.adminLoginForm)) { implicit request =>
     validateAdmin(request) match {
       case Some(client) => Ok.withCookies(Cookie("login", request.body.login), Cookie("password", request.body.password))
-      case None => Forbidden
+      case None => Forbidden("Złe hasło/login :)")
     }
   }
 
@@ -108,5 +108,9 @@ class GitaraSiemaController @Inject()(cc: ControllerComponents) extends Abstract
     val tags = Await.result(db.run(Tables.Tags.list), Duration.Inf)
     Ok(views.html.tagedit(tags))
   }
+
+	def web = Action { implicit request =>
+		Ok(views.html.admin(validateAdmin(request).isDefined)(Evacuation.isNow))
+	}
 
 }

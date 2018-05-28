@@ -25,10 +25,11 @@ GET         /api/isvaliduser             controllers.ApiController.isValidUser
 POST        /api/register                controllers.ApiController.registerUser
 POST        /api/activate                controllers.ApiController.activateUser
 
-GET         /web/tags                    controllers.GitaraSiemaController        .tags
-GET         /web/reports                 controllers.GitaraSiemaController        .reports
-GET         /web/clients                 controllers.GitaraSiemaController        .clients
-POST        /web/toggleevacuation        controllers.GitaraSiemaController        .evacuationToggle
-POST        /web/ban                     controllers.GitaraSiemaController        .banUser
-POST        /web/setreport               controllers.GitaraSiemaController        .changeReportStatus
-POST        /web/login                   controllers.GitaraSiemaController        .adminLogin
+GET         /web/tags                    controllers.GitaraSiemaController.tags
+GET         /web/reports                 controllers.GitaraSiemaController.reports
+GET         /web/clients                 controllers.GitaraSiemaController.clients
+POST        /web/toggleevacuation        controllers.GitaraSiemaController.evacuationToggle
+POST        /web/ban                     controllers.GitaraSiemaController.banUser
+POST        /web/setreport               controllers.GitaraSiemaController.changeReportStatus
+POST        /web/login                   controllers.GitaraSiemaController.adminLogin
+GET         /web                         controllers.GitaraSiemaController.web
